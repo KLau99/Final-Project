@@ -1,0 +1,83 @@
+---
+title: "NFL Injuries and Are They Improving?"
+author: "Kristina Lau"
+date: "2023-11-10"
+output:
+  pdf_document: default
+  html_document: default
+---
+#Libraries
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(ggridges)
+```
+
+#Setting up plotting theme
+```{r}
+theme_jason <- function(legend_pos="top", base_size=12, font=NA){
+  
+  # come up with some default text details
+  txt <- element_text(size = base_size+3, colour = "black", face = "plain")
+  bold_txt <- element_text(size = base_size+3, colour = "black", face = "bold")
+  
+  # use the theme_minimal() theme as a baseline
+  theme_minimal(base_size = base_size, base_family = font)+
+    theme(text = txt,
+          # axis title and text
+          axis.title.x = element_text(size = 15, hjust = 1),
+          axis.title.y = element_text(size = 15, hjust = 1),
+          # gridlines on plot
+          panel.grid.major = element_line(linetype = 2),
+          panel.grid.minor = element_line(linetype = 2),
+          # title and subtitle text
+          plot.title = element_text(size = 18, colour = "grey25", face = "bold"),
+          plot.subtitle = element_text(size = 16, colour = "grey44"),
+          
+          ###### clean up!
+          legend.key = element_blank(),
+          # the strip.* arguments are for faceted plots
+          strip.background = element_blank(),
+          strip.text = element_text(face = "bold", size = 13, colour = "grey35")) +
+    
+    #----- AXIS -----#
+    theme(
+      #### remove Tick marks
+      axis.ticks=element_blank(),
+      
+      ### legend depends on argument in function and no title
+      legend.position = legend_pos,
+      legend.title = element_blank(),
+      legend.background = element_rect(fill = NULL, size = 0.5,linetype = 2)
+      
+    )
+}
+
+
+plot_cols <- c("#498972", "#3E8193", "#BC6E2E", "#A09D3C", "#E06E77", "#7589BC", "#A57BAF", "#4D4D4D")
+
+```
+
+This section will deal with cleaning up some of the variables that appear to be a bit of a mess. Some of these variables were also an issue in the NFL Big Data Bowl competition, of which my EDA there dealt with some of these, and can be found [here](https://www.kaggle.com/jaseziv83/comprehensive-cleaning-and-eda-of-all-variables).
+
+#Stadium Type
+
+There are `r length(unique(play_list$StadiumType))` different stadium types in the `play_list` dataset, which should immediately sound of some alarm bells.
+
+When we inspect these levels, we can see that there are minor differences in the description of these values, in addition to spelling errors.
+
+
+```{r}
+play_list %>% 
+  count(StadiumType) %>% 
+  rename(Count = n) %>% 
+  mutate(Count = comma(Count)) %>% 
+  kableExtra::kable(format = "html", escape = F) %>%
+  kableExtra::kable_styling("striped", full_width = F) %>% 
+  kableExtra::scroll_box(height = "500px") %>%
+  kableExtra::kable_styling(fixed_thead = T)
+```
+```
+
+
